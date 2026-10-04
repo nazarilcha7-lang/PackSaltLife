@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "coordsoverlay",
+  "version": "1.0.0",
+  "name": "Coords Overlay Agent",
+  "description": "Java agent attached to the running game by MCOverlay.exe",
+  "authors": [ "Nazar" ],
+  "license": "MIT",
+  "environment": "client",
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.4",
+    "java": ">=21"
+  }
+}

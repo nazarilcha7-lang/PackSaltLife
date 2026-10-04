@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Agent-Class: com.overlay.agent.AgentMain
+Premain-Class: com.overlay.agent.AgentMain
+Can-Retransform-Classes: false
+

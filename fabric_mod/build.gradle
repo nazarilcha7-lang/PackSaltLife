@@ -1,0 +1,64 @@
+plugins {
+    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
+jar {
+    manifest {
+        attributes 'Agent-Class': 'com.overlay.agent.AgentMain',
+                   'Premain-Class': 'com.overlay.agent.AgentMain',
+                   'Can-Retransform-Classes': 'false'
+    }
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+// Проверка: итоговый jar обязан содержать fabric.mod.json и класс мода
+remapJar {
+    doLast {
+        def jarFile = archiveFile.get().asFile
+        def zip = new java.util.zip.ZipFile(jarFile)
+        try {
+            ['fabric.mod.json', 'com/overlay/CoordsClientMod.class', 'com/overlay/PlayerNew.class', 'com/overlay/AutoHit.class', 'com/overlay/AimAssist.class', 'com/overlay/Visuals.class', 'com/overlay/AgentRuntime.class', 'com/overlay/agent/AgentMain.class', 'com/overlay/agent/Injector.class', 'com/overlay/agent/ChildFirstLoader.class'].each { name ->
+                if (zip.getEntry(name) == null) {
+                    throw new GradleException("В ${jarFile.name} нет ${name} - jar пустой!")
+                }
+            }
+        } finally {
+            zip.close()
+        }
+        println "Verified Fabric JAR: ${jarFile.name} (OK)"
+    }
+}
